@@ -1,0 +1,26 @@
+func NewServer() *echo.Echo {
+  ...
+  server.Post("/graphql", graphQLHandler)
+}
+
+func graphQLHandler(context echo.Context) error {
+    ...
+    // setup executor here
+    ...
+    body, err := ioutil.ReadAll(context.Request().Body())
+    if err != nil {
+        panic(err)
+    }
+    var data map[string]interface{}
+    if err := json.Unmarshal(body, &data); err != nil {
+        panic(err)
+    }
+    query := data["query"]
+    variables := data["variables"]
+    result, err := executor.Execute(context, query, variables, "")
+    if err != nil {
+        panic(err)
+    }
+    fmt.Printf("%v", result)
+    // return result
+}
