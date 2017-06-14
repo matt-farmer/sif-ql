@@ -2600,11 +2600,11 @@ GraphiQL.Logo = function GraphiQLLogo(props) {
     props.children || _react2.default.createElement(
       'span',
       null,
-      'Graph',
+      'SIF',
       _react2.default.createElement(
         'em',
         null,
-        'i'
+        '-'
       ),
       'QL'
     )
