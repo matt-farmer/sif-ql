@@ -200,13 +200,8 @@ func buildResolvers() map[string]interface{} {
 		responses := []interface{}{}
 		// log.Printf("params: %#v\n\n", params)
 		if sd, ok := params.Source.(*naprr.SchoolData); ok {
-			i := 0
 			for _, response := range sd.Responses {
-				i = i + 1
 				responses = append(responses, response)
-				if i == 1 {
-					break
-				}
 			}
 		}
 		return responses, nil

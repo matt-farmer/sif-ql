@@ -108,27 +108,45 @@ type NAPResponseSet {
 	TestletList: [NAPResponseSet_Testlet]
 }
 
+## Testlet taken by this student
 type NAPResponseSet_Testlet {
+	## Guid for the source testlet in codeframe
 	NapTestletRefId: String 
-	NapTestletLocalId: String 
+	## local name for testlet
+	NapTestletLocalId: String
+	## score for this testlet 
 	TestletScore: String
+	## Responses to each of the items the testlet contains
 	ItemResponseList: [NAPResponseSet_ItemResponse]
 }
 
+## Item-level responses within a testlet
 type NAPResponseSet_ItemResponse {
+	## the refid of the item in the code-frame
 	ItemRefID: String 
+	## the local id for the item
 	LocalID: String 
+	## the student's response
 	Response: String 
+	## Correct or Incorrect
 	ResponseCorrectness: String 
-	Score: String 
+	## Item score
+	Score: String
+	## student duration on item 
 	LapsedTimeItem: String 
+	## ordering no. for item
 	SequenceNumber: String 
+	## weighting / importance
 	ItemWeight: String 
+	## sub-scores eg. for subcomponents of writing
 	SubscoreList: [NAPResponseSet_Subscore]
 }
 
+## Detailed subscores for domains such as writing
 type NAPResponseSet_Subscore {
+	## name of subscore
 	SubscoreType: String
+	## score for this sub-component
 	SubscoreValue: String
 }
 
