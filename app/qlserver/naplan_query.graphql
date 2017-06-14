@@ -1,0 +1,74 @@
+query NAPData($acaraIDs: [String]!, $onlyDisruptions: Boolean) {
+  getSchoolData(acaraIDs: $acaraIDs) {
+    events(onlyDisruptions: $onlyDisruptions) {
+      ...evtFields
+    }
+    responses {
+      ...responseFields
+    }
+  }
+}
+
+fragment evtFields on NAPEvent {
+  ParticipationCode
+  ParticipationText
+  PSI
+  SchoolID
+}
+
+fragment responseFields on NAPResponseSet {
+  PSI
+  PathTakenForDomain
+}
+
+
+### More extensive version with responses
+
+query NAPData($acaraIDs: [String]!, $onlyDisruptions: Boolean) {
+  getSchoolData(acaraIDs: $acaraIDs) {
+    responses {
+      ...responseFields
+    }
+  }
+}
+
+fragment evtFields on NAPEvent {
+  PSI
+}
+
+fragment responseFields on NAPResponseSet {
+  PSI
+  PathTakenForDomain
+  DomainScore {
+    RawScore
+    ScaledScoreValue
+    ScaledScoreLogitValue
+    ScaledScoreStandardError
+    ScaledScoreLogitStandardError
+    StudentDomainBand
+    StudentProficiency
+    PlausibleScaledValueList
+  }
+  TestletList {
+    NapTestletRefId
+    NapTestletLocalId
+    TestletScore
+    ItemResponseList {
+      ItemRefID
+      LocalID
+      Response
+      ResponseCorrectness
+      Score
+      LapsedTimeItem
+      SequenceNumber
+      ItemWeight
+      SubscoreList {
+        SubscoreType
+        SubscoreValue
+      }
+    }
+  }
+}
+
+
+

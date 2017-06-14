@@ -2,6 +2,7 @@
 package main
 
 import (
+	"io/ioutil"
 	"log"
 	"net/http"
 	"strings"
@@ -15,58 +16,6 @@ import (
 
 var sr = naprr.NewStreamReader()
 var executor *graphql.Executor
-
-// var sd = sr.GetSchoolData("21212")
-
-var schema = `
-	## Reason why sitting test was interrupted
-	type TestDisruption {
-		Event: String
-	}
-
-	## A NAP Testing event
-	type NAPEvent {
-		## RefID of the Event
-		EventID: String
-		## RefID of student who particpated in event
-		SPRefID: String
-		## Platform ID of the student
-		PSI: String
-		SchoolRefID: String
-		## ACARA ASL id for the school
-		SchoolID: String
-		TestID: String
-		NAPTestLocalID: String
-		SchoolSector: String
-		System: String
-		SchoolGeoLocation: String
-		ReportingSchoolName: String
-		JurisdictionID: String
-		ParticipationCode: String
-		ParticipationText: String
-		Device: String
-		Date: String
-		StartTime: String
-		LapsedTimeTest: String
-		ExemptionReason: String
-		PersonalDetailsChanged: String
-		PossibleDuplicate: String
-		DOBRange: String
-		TestDisruptionList: [TestDisruption]
-	}
-
-	## All NAPLAN Test data for a given school
-	type School {
-		# Test events this school's students participated in
-		# onlyDisruptions: set to true to see only events that were disrupted
-		events(onlyDisruptions: Boolean): [NAPEvent]
-	}
-
-	## Retrieve NAPLAN data for this school
-	type SchoolQuery {
-		getSchoolData(acaraID: String): School
-	}
-	`
 
 //
 // wrapper type to capture graphql input
@@ -103,14 +52,28 @@ func buildResolvers() map[string]interface{} {
 		}
 		return disruptionEvents, nil
 	}
-	resolvers["School/events"] = func(params *graphql.ResolveParams) (interface{}, error) {
 
-		events := []interface{}{}
+	resolvers["NAPEvent/Adjustment"] = func(params *graphql.ResolveParams) (interface{}, error) {
+		// keep the NAPEvent in play for downstream resolvers
+		// otherwise embedded structs will be returned as anonymous by reflection
+		// but impossible to resolve from type interface{} with no concrete
+		// type behind them.
+		return params.Source, nil
+	}
 
+	resolvers["Adjustment/PNPCodeList"] = func(params *graphql.ResolveParams) (interface{}, error) {
+		pnpCodes := []interface{}{}
 		// log.Printf("params: %#v\n\n", params)
+		if napEvent, ok := params.Source.(xml.NAPEvent); ok {
+			return napEvent.Adjustment.PNPCodelist.PNPCode, nil
+		}
+		return pnpCodes, nil
+	}
 
+	resolvers["School/events"] = func(params *graphql.ResolveParams) (interface{}, error) {
+		events := []interface{}{}
+		// log.Printf("params: %#v\n\n", params)
 		if sd, ok := params.Source.(*naprr.SchoolData); ok {
-
 			if params.Args["onlyDisruptions"].(bool) {
 				for _, event := range sd.Events {
 					if event.TestDisruptionList.TestDisruption != nil {
@@ -125,19 +88,159 @@ func buildResolvers() map[string]interface{} {
 		}
 		return events, nil
 	}
-	resolvers["SchoolQuery/getSchoolData"] = func(params *graphql.ResolveParams) (interface{}, error) {
+
+	resolvers["NAPResponseSet/DomainScore"] = func(params *graphql.ResolveParams) (interface{}, error) {
+		// keep the ResponseSet in play for downstream resolvers
+		// otherwise embedded structs will be returned as anonymous by reflection
+		// but impossible to resolve from type interface{} with no concrete
+		// type behind them.
+		return params.Source, nil
+	}
+
+	resolvers["NAPResponseSet/TestletList"] = func(params *graphql.ResolveParams) (interface{}, error) {
+
+		testletList := []interface{}{}
+		// log.Printf("params: %#v\n\n", params)
+		if napResponse, ok := params.Source.(xml.NAPResponseSet); ok {
+			return napResponse.TestletList.Testlet, nil
+		}
+		return testletList, nil
+
+	}
+
+	resolvers["NAPResponseSet_ItemResponse/SubscoreList"] = func(params *graphql.ResolveParams) (interface{}, error) {
+
+		subscoreList := []interface{}{}
+		// log.Printf("params: %#v\n\n", params)
+		if napResponse, ok := params.Source.(xml.NAPResponseSet_ItemResponse); ok {
+			return napResponse.SubscoreList.Subscore, nil
+		}
+		return subscoreList, nil
+
+	}
+
+	resolvers["NAPResponseSet_Testlet/ItemResponseList"] = func(params *graphql.ResolveParams) (interface{}, error) {
+
+		itemList := []interface{}{}
+		// log.Printf("params: %#v\n\n", params)
+		if napResponse, ok := params.Source.(xml.NAPResponseSet_Testlet); ok {
+			return napResponse.ItemResponseList.ItemResponse, nil
+		}
+		return itemList, nil
+
+	}
+
+	resolvers["DomainScore/PlausibleScaledValueList"] = func(params *graphql.ResolveParams) (interface{}, error) {
+		scaledValues := []interface{}{}
+		// log.Printf("params: %#v\n\n", params)
+		if napResponse, ok := params.Source.(xml.NAPResponseSet); ok {
+			return napResponse.DomainScore.PlausibleScaledValueList.PlausibleScaledValue, nil
+		}
+		return scaledValues, nil
+
+	}
+
+	resolvers["DomainScore/RawScore"] = func(params *graphql.ResolveParams) (interface{}, error) {
+		rawScore := ""
+		if napResponse, ok := params.Source.(xml.NAPResponseSet); ok {
+			rawScore = napResponse.DomainScore.RawScore
+		}
+		return rawScore, nil
+	}
+
+	resolvers["DomainScore/ScaledScoreValue"] = func(params *graphql.ResolveParams) (interface{}, error) {
+		scaledScoreValue := ""
+		if napResponse, ok := params.Source.(xml.NAPResponseSet); ok {
+			scaledScoreValue = napResponse.DomainScore.ScaledScoreValue
+		}
+		return scaledScoreValue, nil
+	}
+
+	resolvers["DomainScore/ScaledScoreLogitValue"] = func(params *graphql.ResolveParams) (interface{}, error) {
+		scaledScoreLogitValue := ""
+		if napResponse, ok := params.Source.(xml.NAPResponseSet); ok {
+			scaledScoreLogitValue = napResponse.DomainScore.ScaledScoreValue
+		}
+		return scaledScoreLogitValue, nil
+	}
+
+	resolvers["DomainScore/ScaledScoreStandardError"] = func(params *graphql.ResolveParams) (interface{}, error) {
+		scaledScoreStandardError := ""
+		if napResponse, ok := params.Source.(xml.NAPResponseSet); ok {
+			scaledScoreStandardError = napResponse.DomainScore.ScaledScoreStandardError
+		}
+		return scaledScoreStandardError, nil
+	}
+
+	resolvers["DomainScore/ScaledScoreLogitStandardError"] = func(params *graphql.ResolveParams) (interface{}, error) {
+		scaledScoreLogitStandardError := ""
+		if napResponse, ok := params.Source.(xml.NAPResponseSet); ok {
+			scaledScoreLogitStandardError = napResponse.DomainScore.ScaledScoreLogitStandardError
+		}
+		return scaledScoreLogitStandardError, nil
+	}
+
+	resolvers["DomainScore/StudentDomainBand"] = func(params *graphql.ResolveParams) (interface{}, error) {
+		studentDomainBand := ""
+		if napResponse, ok := params.Source.(xml.NAPResponseSet); ok {
+			studentDomainBand = napResponse.DomainScore.StudentDomainBand
+		}
+		return studentDomainBand, nil
+	}
+
+	resolvers["DomainScore/StudentProficiency"] = func(params *graphql.ResolveParams) (interface{}, error) {
+		studentProficiency := ""
+		if napResponse, ok := params.Source.(xml.NAPResponseSet); ok {
+			studentProficiency = napResponse.DomainScore.StudentDomainBand
+		}
+		return studentProficiency, nil
+	}
+
+	resolvers["School/responses"] = func(params *graphql.ResolveParams) (interface{}, error) {
+		responses := []interface{}{}
+		// log.Printf("params: %#v\n\n", params)
+		if sd, ok := params.Source.(*naprr.SchoolData); ok {
+			i := 0
+			for _, response := range sd.Responses {
+				i = i + 1
+				responses = append(responses, response)
+				if i == 1 {
+					break
+				}
+			}
+		}
+		return responses, nil
+	}
+
+	resolvers["NaplanQuery/getSchoolData"] = func(params *graphql.ResolveParams) (interface{}, error) {
 		// get the school data
-		schoolID := params.Args["acaraID"].(string)
-		sd := sr.GetSchoolData(schoolID)
-		return sd, nil
+		schools := []interface{}{}
+		// log.Printf("params: %#v\n\n", params)
+		schoolIDs := params.Args["acaraIDs"].([]interface{})
+		for _, id := range schoolIDs {
+			if schoolID, ok := id.(string); ok {
+				sd := sr.GetSchoolData(schoolID)
+				schools = append(schools, sd)
+			}
+		}
+
+		return schools, nil
 	}
 
 	return resolvers
 }
 
+func buildSchema() string {
+	dat, err := ioutil.ReadFile("naplan_schema.graphql")
+	if err != nil {
+		log.Fatalln("Unable to load schema from file: ", err)
+	}
+	return string(dat)
+}
+
 func buildExecutor() *graphql.Executor {
 
-	executor, err := graphql.NewExecutor(schema, "SchoolQuery", "", buildResolvers())
+	executor, err := graphql.NewExecutor(buildSchema(), "NaplanQuery", "", buildResolvers())
 	if err != nil {
 		log.Fatalln("Cannot create Executor: ", err)
 	}
@@ -147,6 +250,12 @@ func buildExecutor() *graphql.Executor {
 		switch value.(type) {
 		case *xml.NAPEvent:
 			return "NAPEvent"
+		case xml.NAPResponseSet:
+			return "NAPResponseSet"
+		case xml.NAPResponseSet_Testlet:
+			return "NAPResponseSet_Testlet"
+		case xml.NAPResponseSet_Subscore:
+			return "NAPResponseSet_Subscore"
 		}
 		return ""
 	}

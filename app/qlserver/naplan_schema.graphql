@@ -1,0 +1,151 @@
+
+## Reason why sitting test was interrupted
+type TestDisruption {
+	## the disruption event description
+	Event: String
+}
+
+## Adjustments for the student in this event
+type Adjustment {
+	## List of PNP codes applied to this student
+	PNPCodeList: [String]
+	## Booklet type requirement for this student
+	BookletType: String
+}
+
+## A NAP Testing event
+type NAPEvent {
+	## RefID of the Event
+	EventID: String
+	## RefID of student who particpated in event
+	SPRefID: String
+	## Platform ID of the student
+	PSI: String
+	## RefID for the SchoolInfo
+	SchoolRefID: String
+	## ACARA ASL id for the school
+	SchoolID: String
+	## RefID for the Test
+	TestID: String
+	## Local Name or ID for the Test
+	NAPTestLocalID: String
+	## Sector indicator for School
+	SchoolSector: String
+	## School System (gov, non-gov etc.)
+	System: String
+	## Regional, Metro etc.
+	SchoolGeolocation: String
+	## School reporting data should be returned to
+	ReportingSchoolName: String
+	## Jurisdictional Event ID
+	JurisdictionID: String
+	## Present, Absent, Withdrawn etc.
+	ParticipationCode: String
+	## Text explanation of participation code
+	ParticipationText: String
+	## Device test was taken on
+	Device: String
+	## Date of test event
+	Date: String
+	## Timecode for start of test
+	StartTime: String
+	## Timecode for user test duration
+	LapsedTimeTest: String
+	## Text description of reason why student exempted
+	ExemptionReason: String
+	## Flags whether personal detials were updated within AD platform
+	PersonalDetailsChanged: String
+	## Flags if this may be a duplicate of another user
+	PossibleDuplicate: String
+	## Date of Birth range
+	DOBRange: String
+	## List of test disruptions for this event/student
+	TestDisruptionList: [TestDisruption]
+	## List of adjustments for this event/student
+	Adjustment: Adjustment
+}
+
+## All NAPLAN Test results data for a given school
+type School {
+	## Test events this school's students participated in
+	## onlyDisruptions: set to true to see only events that were disrupted
+	events(onlyDisruptions: Boolean): [NAPEvent]
+	## The student responses from this school
+	responses: [NAPResponseSet]
+}
+
+## Retrieve NAPLAN results data for this school
+type NaplanQuery {
+	## Query to access school-level NAPLAN info: Events, Responses, ScoreSummaries etc.
+	getSchoolData(acaraIDs: [String]!): [School]
+}
+
+## Student Responses to Test Questions
+type NAPResponseSet {
+	## RefID for this Response
+	ResponseID: String
+	## These responses not to be included in published reports if true
+	ReportExclusionFlag: String
+	## Responses are part of ACARA Calibration sample
+	CalibrationSampleFlag: String 
+	## Responses are part of Equating sample
+	EquatingSampleFlag: String 
+	## Text description of student testlet path taken
+	PathTakenForDomain: String 
+	## Indicates this was parrllel test
+	ParallelTest: String 
+	## RefID for Student
+	StudentID: String 
+	## Platform ID for Student
+	PSI: String 
+	## RefID for the Test these responses came from
+	TestID: String 
+	## Local (jurisdiction) name for the test
+	TestLocalID: String 
+	## Detailed scoring breakdown for the test domain of this responses
+	DomainScore: DomainScore
+	## Testlets answered by this student
+	TestletList: [NAPResponseSet_Testlet]
+}
+
+type NAPResponseSet_Testlet {
+	NapTestletRefId: String 
+	NapTestletLocalId: String 
+	TestletScore: String
+	ItemResponseList: [NAPResponseSet_ItemResponse]
+}
+
+type NAPResponseSet_ItemResponse {
+	ItemRefID: String 
+	LocalID: String 
+	Response: String 
+	ResponseCorrectness: String 
+	Score: String 
+	LapsedTimeItem: String 
+	SequenceNumber: String 
+	ItemWeight: String 
+	SubscoreList: [NAPResponseSet_Subscore]
+}
+
+type NAPResponseSet_Subscore {
+	SubscoreType: String
+	SubscoreValue: String
+}
+
+## Detailed scoring breakdown for the test domain of this responses
+type DomainScore {
+		RawScore: String 
+		ScaledScoreValue: String 
+		ScaledScoreLogitValue: String 
+		ScaledScoreStandardError: String 
+		ScaledScoreLogitStandardError: String 
+		StudentDomainBand: String 
+		StudentProficiency: String 
+		PlausibleScaledValueList: [String]
+}
+
+
+
+
+
+	
