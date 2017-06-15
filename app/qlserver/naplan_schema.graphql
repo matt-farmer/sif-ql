@@ -72,6 +72,8 @@ type School {
 	events(onlyDisruptions: Boolean): [NAPEvent]
 	## The student responses from this school
 	responses: [NAPResponseSet]
+	## Students at this school
+	students: [RegistrationRecord]
 }
 
 ## Retrieve NAPLAN results data for this school
@@ -152,18 +154,151 @@ type NAPResponseSet_Subscore {
 
 ## Detailed scoring breakdown for the test domain of this responses
 type DomainScore {
-		RawScore: String 
-		ScaledScoreValue: String 
-		ScaledScoreLogitValue: String 
-		ScaledScoreStandardError: String 
-		ScaledScoreLogitStandardError: String 
-		StudentDomainBand: String 
-		StudentProficiency: String 
-		PlausibleScaledValueList: [String]
+	## Raw score, unsclaed		
+	RawScore: String 
+	## Scaled score
+	ScaledScoreValue: String 
+	## Scaled score logit
+	ScaledScoreLogitValue: String 
+	## Std. Err for Scaled Score
+	ScaledScoreStandardError: String 
+	## Sclaed Score Logit
+	ScaledScoreLogitStandardError: String 
+	## Band allocated to student based on score
+	StudentDomainBand: String 
+	## Proficiency of student
+	StudentProficiency: String
+	## Plausible values list for this domain 
+	PlausibleScaledValueList: [String]
 }
 
+## Student Personal information
+type RegistrationRecord {
+	## SIF GuID for this record
+	RefId: String 
+	## Local ID of student
+	LocalId: String 
+	## State/Province ID of student
+	StateProvinceId: String 
+	## Key-Value list of all ids associated with student, including past/present variants
+	OtherIdList: [XMLAttributeStruct]
+	## Family Name, surname of student
+	FamilyName: String 
+	## Given Name of Student
+	GivenName: String 
+	## Middle Name of Student
+	MiddleName: String 
+	## Name student preferes to be known by
+	PreferredName: String 
+	## Ind. Status indicator
+	IndigenousStatus: String
+	## Male/Female/Other 
+	Sex: String 
+	## Date of Birth
+	BirthDate: String
+	## Country of Birth 
+	CountryOfBirth: String 
+	## Student Language Other than English
+	StudentLOTE: String 
+	## Student's current visa code
+	VisaCode: String 
+	## Langauage Background Other than English
+	LBOTE: String 
+	## Address
+	AddressLine1: String 
+	## Address
+	AddressLine2: String 
+	## Region etc.
+	Locality: String 
+	## State or Territory
+	StateTerritory: String
+	## Student's postcode 
+	Postcode: String 
+	## Local identifier (non-ASL) for student's school
+	SchoolLocalId: String 
+	## Student year level
+	YearLevel: String 
+	## Time fraction for attendance
+	FTE: String 
+	## Parent 1 Language other Than English
+	Parent1LOTE: String 
+	## Parent 2 Language other Than English
+	Parent2LOTE: String 
+	## Parent 1 occupation category
+	Parent1Occupation: String 
+	## Parent 2 occupation category
+	Parent2Occupation: String 
+	## Parent 1 Educational background classifier
+	Parent1SchoolEducation: String 
+	## Parent 2 Educational background classifier
+	Parent2SchoolEducation: String 
+	## Parent 1 post/non-school Educational background classifier
+	Parent1NonSchoolEducation: String 
+	## Parent 2 post/non-school Educational background classifier
+	Parent2NonSchoolEducation: String 
+	## Local id (non-ASL) of school campus
+	LocalCampusId: String 
+	## ACARA ASL Id of School
+	ASLSchoolId: String 
+	## Test level (3,5,7,9) for this student
+	TestLevel: String 
+	## Student homegroup name
+	Homegroup: String 
+	## Student class-group name
+	ClassGroup: String 
+	## Flag indicates this is student's main school
+	MainSchoolFlag: String 
+	## FFPOS
+	FFPOS: String 
+	## ACARA ASL Id of school reports should be returned to
+	ReportingSchoolId: String 
+	## ACARA ASL Id of other school student is associated with
+	OtherSchoolId: String 
+	## Does student require educational support
+	EducationSupport: String 
+	## Is student home-schooled
+	HomeSchooledStudent: String
+	## Flag indicates sensitive handling reqiuired of student information  
+	Sensitive: String 
+	## Student took test using offline delivery
+	OfflineDelivery: String 
+	# Catholic sector id, ingest only in results reporting use otherid list
+	# DiocesanId: String 
+	# Jurisdiction id, ingest only in results reporting use otherid list
+	# JurisdictionId: String 
+	# National id, ingest only in results reporting use otherid list
+	# NationalId: String 
+	# Other id, ingest only in results reporting use otherid list
+	# OtherId: String 
+	# PlatformId: String 
+	# Catholic sector id, ingest only in results reporting use otherid list
+	# PreviousDiocesanId: String 
+	# Jurisdiction id, ingest only in results reporting use otherid list
+	# PreviousLocalId: String 
+	# National id, ingest only in results reporting use otherid list
+	# PreviousNationalId: String 
+	# Other id, ingest only in results reporting use otherid list
+	# PreviousOtherId: String 
+	# PSI, ingest only in results reporting use otherid list
+	# PreviousPlatformId: String 
+	# Sector id, ingest only in results reporting use otherid list
+	# PreviousSectorId: String 
+	# State id, ingest only in results reporting use otherid list
+	# PreviousStateProvinceId: String 
+	# TAA id, ingest only in results reporting use otherid list
+	# PreviousTAAId: String 
+	# Sector id, ingest only in results reporting use otherid list
+	# SectorId: String 
+	# TAA id, ingest only in results reporting use otherid list
+	# TAAId: String 
+}
 
-
-
+## key-value pairs for other ids
+type XMLAttributeStruct {
+	## other id name
+	Type: String
+	## other id value
+	Value: String
+}
 
 	
