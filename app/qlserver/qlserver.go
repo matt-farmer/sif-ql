@@ -207,6 +207,26 @@ func buildResolvers() map[string]interface{} {
 		return responses, nil
 	}
 
+	resolvers["School/students"] = func(params *graphql.ResolveParams) (interface{}, error) {
+		students := []interface{}{}
+		// log.Printf("params: %#v\n\n", params)
+		if sd, ok := params.Source.(*naprr.SchoolData); ok {
+			for _, student := range sd.Students {
+				students = append(students, student)
+			}
+		}
+		return students, nil
+	}
+
+	resolvers["RegistrationRecord/OtherIdList"] = func(params *graphql.ResolveParams) (interface{}, error) {
+		otherIDs := []interface{}{}
+		// log.Printf("params: %#v\n\n", params)
+		if napRegistrationRecord, ok := params.Source.(xml.RegistrationRecord); ok {
+			return napRegistrationRecord.OtherIdList.OtherId, nil
+		}
+		return otherIDs, nil
+	}
+
 	resolvers["NaplanQuery/getSchoolData"] = func(params *graphql.ResolveParams) (interface{}, error) {
 		// get the school data
 		schools := []interface{}{}
@@ -251,6 +271,10 @@ func buildExecutor() *graphql.Executor {
 			return "NAPResponseSet_Testlet"
 		case xml.NAPResponseSet_Subscore:
 			return "NAPResponseSet_Subscore"
+		case xml.RegistrationRecord:
+			return "RegistrationRecord"
+		case xml.XMLAttributeStruct:
+			return "XMLAttributeStruct"
 		}
 		return ""
 	}
