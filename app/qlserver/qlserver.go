@@ -218,6 +218,17 @@ func buildResolvers() map[string]interface{} {
 		return students, nil
 	}
 
+	resolvers["School/score_summaries"] = func(params *graphql.ResolveParams) (interface{}, error) {
+		summaries := []interface{}{}
+		// log.Printf("params: %#v\n\n", params)
+		if sd, ok := params.Source.(*naprr.SchoolData); ok {
+			for _, summary := range sd.ScoreSummaries {
+				summaries = append(summaries, summary)
+			}
+		}
+		return summaries, nil
+	}
+
 	resolvers["RegistrationRecord/OtherIdList"] = func(params *graphql.ResolveParams) (interface{}, error) {
 		otherIDs := []interface{}{}
 		// log.Printf("params: %#v\n\n", params)
@@ -275,6 +286,8 @@ func buildExecutor() *graphql.Executor {
 			return "RegistrationRecord"
 		case xml.XMLAttributeStruct:
 			return "XMLAttributeStruct"
+		case xml.NAPTestScoreSummary:
+			return "NAPTestScoreSummary"
 		}
 		return ""
 	}
