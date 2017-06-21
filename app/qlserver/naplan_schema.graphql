@@ -74,6 +74,8 @@ type School {
 	responses: [NAPResponseSet]
 	## Students at this school
 	students: [RegistrationRecord]
+	## summary of scores for school
+	score_summaries: [ScoreSummary]
 }
 
 ## Retrieve NAPLAN results data for this school
@@ -300,5 +302,35 @@ type XMLAttributeStruct {
 	## other id value
 	Value: String
 }
+
+type ScoreSummary {
+	## The Refid of this score summary
+	SummaryID: String 
+	## The RefID of the school this summary refers to
+	SchoolInfoRefId: String
+	## The ACARA ASL Id of the school
+	SchoolACARAId: String
+	## The NAPLAN Test this summary is for
+	NAPTestRefId: String
+	## Local name/id for this NAPLAN test
+	NAPTestLocalId: String
+	## The natioanl average school score for this test domain
+	DomainNationalAverage: String
+	## The averaged school score for this test domain
+	DomainSchoolAverage: String
+	## The jurusdictions average school score for this test domain
+	DomainJurisdictionAverage: String
+	## Top national 60th percentile average school score for this test domain
+	DomainTopNational60Percent: String
+	## Bottom national 60th percentile average school score for this test domain
+	DomainBottomNational60Percent: String
+}
+
+# type SchoolInfo {	
+# }
+
+
+
+
 
 	
