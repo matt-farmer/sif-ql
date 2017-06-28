@@ -128,6 +128,8 @@ type NAPResponseSet_Testlet {
 type NAPResponseSet_ItemResponse {
 	## the refid of the item in the code-frame
 	ItemRefID: String 
+	## The referenced Test Item
+	Item: NAPTestItem
 	## the local id for the item
 	LocalID: String 
 	## the student's response
@@ -145,6 +147,57 @@ type NAPResponseSet_ItemResponse {
 	## sub-scores eg. for subcomponents of writing
 	SubscoreList: [NAPResponseSet_Subscore]
 }
+
+## Test Item Container
+type NAPTestItem {
+	## The RefID of the Test Item
+	ItemID: String
+	## The details about the test item
+	TestItemContent: TestItemContent
+}
+
+## Test Item Details
+type TestItemContent {
+	## Local system id for this item
+	NAPTestItemLocalId: String 
+	## The name of the item
+	ItemName: String 
+	## the Type of the item
+	ItemType: String 
+	## Subdomain item applies to
+	Subdomain: String 
+	## Writing Genre
+	WritingGenre: String 
+	## The item Descriptor
+	ItemDescriptor: String
+	## Was this item released 
+	ReleasedStatus: String 
+	## What sort of marking for this item; machine/human
+	MarkingType: String 
+	## No. of mc options available
+	MultipleChoiceOptionCount: String 
+	## The correct answer for this item
+	CorrectAnswer: String 
+	## Max score available for this item
+	MaximumScore: String 
+	## Difficulty
+	ItemDifficulty: String 
+	## DiffLogit 5
+	ItemDifficultyLogit5: String 
+	## DiffLogit 62
+	ItemDifficultyLogit62: String 
+	## DiffLogit 5SE
+	ItemDifficultyLogit5SE: String 
+	## DiffLogit 62SE
+	ItemDifficultyLogit62SE: String 
+	## Proficiency Band for item
+	ItemProficiencyBand: String 
+	## Proficiency Level for item
+	ItemProficiencyLevel: String 
+	## URL for exemplar, remote system 
+	ExemplarURL: String 
+}
+
 
 ## Detailed subscores for domains such as writing
 type NAPResponseSet_Subscore {
