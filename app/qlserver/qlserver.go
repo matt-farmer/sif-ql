@@ -15,6 +15,7 @@ import (
 )
 
 var sr = naprr.NewStreamReader()
+var nd *naprr.NAPLANData
 var executor *graphql.Executor
 
 //
@@ -116,6 +117,17 @@ func buildResolvers() map[string]interface{} {
 			return napResponse.SubscoreList.Subscore, nil
 		}
 		return subscoreList, nil
+
+	}
+
+	resolvers["NAPResponseSet_ItemResponse/Item"] = func(params *graphql.ResolveParams) (interface{}, error) {
+
+		linkedItem := ""
+		// log.Printf("params: %#v\n\n", params)
+		if napResponse, ok := params.Source.(xml.NAPResponseSet_ItemResponse); ok {
+			return nd.Items[napResponse.ItemRefID], nil
+		}
+		return linkedItem, nil
 
 	}
 
@@ -280,6 +292,12 @@ func buildExecutor() *graphql.Executor {
 			return "NAPResponseSet"
 		case xml.NAPResponseSet_Testlet:
 			return "NAPResponseSet_Testlet"
+		case xml.NAPResponseSet_ItemResponse:
+			return "NAPResponseSet_ItemResponse"
+		case xml.NAPTestItem:
+			return "NAPTestItem"
+		case xml.TestItemContent:
+			return "TestItemContent"
 		case xml.NAPResponseSet_Subscore:
 			return "NAPResponseSet_Subscore"
 		case xml.RegistrationRecord:
@@ -319,6 +337,9 @@ func graphQLHandler(c echo.Context) error {
 }
 
 func main() {
+
+	// get the NAPLAN Test Data once globally
+	nd = sr.GetNAPLANData(naprr.META_STREAM)
 
 	executor = buildExecutor()
 
